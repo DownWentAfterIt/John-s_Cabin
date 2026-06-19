@@ -23,7 +23,7 @@ export interface Game {
 
 // 电子设备分类
 export type DeviceCategory = 
-  | 'Desktop' | 'Desktop Parts' | 'Laptop' | 'Monitor' | 'Mouse' | 'Keyboard' 
+  | 'Desktop' | 'Host' | 'Desktop Parts' | 'Laptop' | 'Monitor' | 'Mouse' | 'Keyboard' 
   | 'Gaming Headset' | 'Daily Headset' | 'Mousepad' | 'Controller' 
   | 'Handheld' | 'External Sound Card' | 'Misc';
 

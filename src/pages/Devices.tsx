@@ -7,13 +7,14 @@ import { ModuleHeader } from "../components/ModuleHeader";
 import { useAuth } from "../contexts/AuthContext";
 
 const deviceCategories: DeviceCategory[] = [
-  'Desktop', 'Desktop Parts', 'Laptop', 'Monitor', 'Mouse', 'Keyboard',
+  'Desktop', 'Host', 'Desktop Parts', 'Laptop', 'Monitor', 'Mouse', 'Keyboard',
   'Gaming Headset', 'Daily Headset', 'Mousepad', 'Controller',
   'Handheld', 'External Sound Card', 'Misc'
 ];
 
 const deviceCategoryLabels: Record<DeviceCategory, string> = {
   'Desktop': '台式机',
+  'Host': '主机',
   'Desktop Parts': '台式配件',
   'Laptop': '笔记本',
   'Monitor': '显示器',
