@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Plus, Search, Star, Edit, Trash2, X, ArrowLeft, Image, Video, ChevronRight, Upload } from "lucide-react";
+import { Plus, Search, Star, Edit, Trash2, X, ArrowLeft, Image, Video, ChevronRight, Upload } from "lucide-react";
 import { fileToBase64, isImageFile, isVideoFile, formatFileSize } from "../utils/upload";
+import { ModuleHeader } from "../components/ModuleHeader";
+import { useAuth } from "../contexts/AuthContext";
 
 type Platform = "PC" | "PlayStation" | "Xbox" | "Nintendo" | "Mobile";
 
@@ -50,6 +52,17 @@ const platformConfig: Record<Platform, { name: string; subPlatforms: SubPlatform
 };
 
 const platforms: (Platform | "All")[] = ["All", "PC", "PlayStation", "Xbox", "Nintendo", "Mobile"];
+
+function getPlatformLabel(platform: Platform | "All"): string {
+  if (platform === "All") return "全部";
+  return platform;
+}
+
+function getSubPlatformLabel(subPlatform: SubPlatform | "All"): string {
+  if (subPlatform === "All") return "全部";
+  if (subPlatform === "Misc") return "其它";
+  return subPlatform;
+}
 
 const STORAGE_KEY = "game-collection-data";
 
@@ -199,40 +212,7 @@ function saveGamesToStorage(games: Game[]): void {
   }
 }
 
-function Header({ onAddGame, showBack, onBack }: { onAddGame?: () => void; showBack?: boolean; onBack?: () => void }) {
-  return (
-    <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {showBack && onBack && (
-              <button onClick={onBack} className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
-                <ArrowLeft className="w-5 h-5 text-slate-300" />
-              </button>
-            )}
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-                <Gamepad2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Game Collection</h1>
-                <p className="text-xs text-slate-400">Track your completed games</p>
-              </div>
-            </div>
-          </div>
-          {!showBack && (
-            <button onClick={onAddGame} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity">
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">Add Game</span>
-            </button>
-          )}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function GameCard({ game, onEdit, onDelete, onViewDetail }: { game: Game; onEdit: (game: Game) => void; onDelete: (id: string) => void; onViewDetail: (game: Game) => void }) {
+function GameCard({ game, onEdit, onDelete, onViewDetail, isAuthenticated }: { game: Game; onEdit: (game: Game) => void; onDelete: (id: string) => void; onViewDetail: (game: Game) => void; isAuthenticated: boolean }) {
   return (
     <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer" onClick={() => onViewDetail(game)}>
       <div className="relative aspect-video overflow-hidden">
@@ -252,36 +232,67 @@ function GameCard({ game, onEdit, onDelete, onViewDetail }: { game: Game; onEdit
           </span>
         </div>
         <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 bg-blue-600/80 backdrop-blur-sm rounded-md text-xs font-medium text-white">
-          View Detail
+          查看详情
           <ChevronRight className="w-3 h-3" />
         </div>
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-white truncate mb-2">{game.name}</h3>
-        <p className="text-xs text-slate-400 mb-3">Completed: {game.completedDate}</p>
+        <p className="text-xs text-slate-400 mb-3">完成日期: {game.completedDate}</p>
         {game.notes && (
           <p className="text-sm text-slate-300 mb-4 line-clamp-2">{game.notes}</p>
         )}
-        <div className="flex gap-2 opacity-0 hover:opacity-100 transition-opacity">
-          <button onClick={(e) => { e.stopPropagation(); onEdit(game); }} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
-            <Edit className="w-4 h-4" />
-            Edit
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(game.id); }} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors">
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
-        </div>
+        {isAuthenticated && (
+          <div className="flex gap-2">
+            <button onClick={(e) => { e.stopPropagation(); onEdit(game); }} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+              <Edit className="w-4 h-4" />
+              编辑
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(game.id); }} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors">
+              <Trash2 className="w-4 h-4" />
+              删除
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
+function GameDetail({ game, onBack, onEdit, isAuthenticated }: { game: Game; onBack: () => void; onEdit?: () => void; isAuthenticated: boolean }) {
   return (
-    <div className="min-h-screen">
-      <Header showBack onBack={onBack} />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen pb-20 relative">
+      {/* 模糊封面背景 */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `url(${game.coverUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'blur(30px) saturate(150%)',
+          transform: 'scale(1.1)'
+        }}
+      />
+      <div className="fixed inset-0 z-0 bg-slate-900/70" />
+      
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button onClick={onBack} className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                <ArrowLeft className="w-5 h-5 text-slate-300" />
+              </button>
+              <h1 className="text-xl font-bold text-white">游戏详情</h1>
+            </div>
+            {isAuthenticated && onEdit && (
+              <button onClick={onEdit} className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                <Edit className="w-5 h-5 text-slate-300" />
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl overflow-hidden mb-6">
           <div className="relative h-64 sm:h-80">
             <img src={game.coverUrl} alt={game.name} className="w-full h-full object-cover" />
@@ -301,7 +312,7 @@ function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
                 </div>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white">{game.name}</h2>
-              <p className="text-sm text-slate-400 mt-1">Completed: {game.completedDate}</p>
+              <p className="text-sm text-slate-400 mt-1">完成日期: {game.completedDate}</p>
             </div>
           </div>
         </div>
@@ -309,7 +320,7 @@ function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
         <div className="space-y-6">
           {game.review && (
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-3">My Review</h3>
+              <h3 className="text-lg font-semibold text-white mb-3">我的评价</h3>
               <div className="text-slate-300 leading-relaxed prose prose-invert" dangerouslySetInnerHTML={{ __html: game.review }} />
             </div>
           )}
@@ -318,7 +329,7 @@ function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Image className="w-5 h-5 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white">Gallery</h3>
+                <h3 className="text-lg font-semibold text-white">图片库</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {game.images.map((image, index) => (
@@ -337,7 +348,7 @@ function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Video className="w-5 h-5 text-purple-400" />
-                <h3 className="text-lg font-semibold text-white">Videos</h3>
+                <h3 className="text-lg font-semibold text-white">视频</h3>
               </div>
               <div className="space-y-4">
                 {game.videos.map((video, index) => (
@@ -351,7 +362,7 @@ function GameDetail({ game, onBack }: { game: Game; onBack: () => void }) {
 
           {game.notes && (
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Quick Notes</h3>
+              <h3 className="text-lg font-semibold text-white mb-3">简评</h3>
               <p className="text-slate-300">{game.notes}</p>
             </div>
           )}
@@ -409,18 +420,18 @@ function GameModal({ game, onClose, onEditDetail }: { game?: Game | null; onClos
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-slate-800 border border-slate-700/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
-          <h2 className="text-lg font-bold text-white">{isEdit ? "Edit Game" : "Add New Game"}</h2>
+          <h2 className="text-lg font-bold text-white">{isEdit ? "编辑游戏" : "添加游戏"}</h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
             <X className="w-5 h-5 text-slate-400" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Game Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">名称</label>
             <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500/50" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Platform</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">平台</label>
             <select value={formData.platform} onChange={(e) => handlePlatformChange(e.target.value as Platform)} className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500/50">
               {platforms.filter(p => p !== "All").map((platform) => (
                 <option key={platform} value={platform}>{platformConfig[platform].name}</option>
@@ -428,15 +439,15 @@ function GameModal({ game, onClose, onEditDetail }: { game?: Game | null; onClos
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Sub Platform</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">子平台</label>
             <select value={formData.subPlatform} onChange={(e) => setFormData({ ...formData, subPlatform: e.target.value as SubPlatform })} className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500/50">
               {platformConfig[formData.platform].subPlatforms.map((subPlatform) => (
-                <option key={subPlatform} value={subPlatform}>{subPlatform}</option>
+                <option key={subPlatform} value={subPlatform}>{getSubPlatformLabel(subPlatform)}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Rating</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">评分</label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button key={rating} type="button" onClick={() => setFormData({ ...formData, rating })} className={`p-2 rounded-lg transition-all ${formData.rating >= rating ? "bg-gradient-to-r from-blue-500 to-purple-600" : "bg-slate-700/50"}`}>
@@ -446,16 +457,16 @@ function GameModal({ game, onClose, onEditDetail }: { game?: Game | null; onClos
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Completed Date</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">完成日期</label>
             <input type="date" value={formData.completedDate} onChange={(e) => setFormData({ ...formData, completedDate: e.target.value })} className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500/50" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Cover Image</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">封面图片</label>
             <div className="flex gap-2 mb-2">
               <input type="url" value={formData.coverUrl.startsWith("data:") ? "" : formData.coverUrl} onChange={(e) => setFormData({ ...formData, coverUrl: e.target.value })} placeholder="Image URL or upload below" className="flex-1 px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50" />
               <label className="px-4 py-2.5 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer flex items-center gap-2">
                 <Upload className="w-4 h-4" />
-                <span>{uploading ? "Uploading..." : "Upload"}</span>
+                <span>{uploading ? "上传中..." : "上传"}</span>
                 <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
               </label>
             </div>
@@ -474,20 +485,20 @@ function GameModal({ game, onClose, onEditDetail }: { game?: Game | null; onClos
                 className="w-full px-4 py-3 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 border-dashed rounded-lg text-slate-300 hover:text-white transition-colors flex items-center justify-center gap-2"
               >
                 <Edit className="w-4 h-4" />
-                Edit Detail Content
+                编辑详情内容
               </button>
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Quick Notes</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">简评</label>
             <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Write some quick notes..." className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 resize-none" />
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors">
-              Cancel
+              取消
             </button>
             <button type="submit" className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-              {isEdit ? "Save Changes" : "Add Game"}
+              {isEdit ? "保存更改" : "添加游戏"}
             </button>
           </div>
         </form>
@@ -498,6 +509,7 @@ function GameModal({ game, onClose, onEditDetail }: { game?: Game | null; onClos
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | "All">("All");
@@ -566,52 +578,57 @@ export default function Home() {
   };
 
   if (selectedGame) {
-    return <GameDetail game={selectedGame} onBack={() => setSelectedGame(null)} />;
+    return <GameDetail game={selectedGame} onBack={() => setSelectedGame(null)} onEdit={() => navigate(`/edit/${selectedGame.id}`)} isAuthenticated={isAuthenticated} />;
   }
 
   return (
-    <div className="min-h-screen">
-      <Header onAddGame={() => setModalOpen(true)} />
+    <div className="min-h-screen pb-20">
+      <ModuleHeader 
+        title="John's Cabin" 
+        subtitle="Track my Gaming Life" 
+        onAdd={() => setModalOpen(true)} 
+        addLabel="添加游戏" 
+      />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-6 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input type="text" placeholder="Search games..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all" />
+            <input type="text" placeholder="搜索游戏..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all" />
           </div>
           <div className="flex flex-wrap gap-2">
             {platforms.map((platform) => (
               <button key={platform} onClick={() => { setSelectedPlatform(platform); setSelectedSubPlatform("All"); }} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${selectedPlatform === platform ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white" : "bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/50"}`}>
-                {platform}
+                {getPlatformLabel(platform)}
               </button>
             ))}
           </div>
           {selectedPlatform !== "All" && (
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setSelectedSubPlatform("All")} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedSubPlatform === "All" ? "bg-blue-600 text-white" : "bg-slate-700/50 text-slate-400 hover:bg-slate-600/50"}`}>
-                All {platformConfig[selectedPlatform].name}
+                全部 {platformConfig[selectedPlatform].name}
               </button>
               {platformConfig[selectedPlatform].subPlatforms.map((subPlatform) => (
                 <button key={subPlatform} onClick={() => setSelectedSubPlatform(subPlatform)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedSubPlatform === subPlatform ? "bg-blue-600 text-white" : "bg-slate-700/50 text-slate-400 hover:bg-slate-600/50"}`}>
-                  {subPlatform}
+                  {getSubPlatformLabel(subPlatform)}
                 </button>
               ))}
             </div>
           )}
         </div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">My Games</h2>
-          <p className="text-sm text-slate-400">{filteredGames.length} games</p>
+          <h2 className="text-lg font-semibold text-white">游戏</h2>
+          <p className="text-sm text-slate-400">{filteredGames.length} 个游戏</p>
         </div>
         {filteredGames.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-slate-500 text-6xl mb-4">??</div>
-            <h3 className="text-lg font-medium text-slate-300 mb-2">No games found</h3>
-            <p className="text-sm text-slate-500">Add your first completed game to get started!</p>
+            <h3 className="text-lg font-medium text-slate-300 mb-2">未找到游戏</h3>
+            <p className="text-sm text-slate-500">开始您的收藏！</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredGames.map((game) => (
-              <GameCard key={game.id} game={game} onEdit={(g) => { setEditingGame(g); setModalOpen(true); }} onDelete={handleDeleteGame} onViewDetail={setSelectedGame} />
+              <GameCard key={game.id} game={game} onEdit={(g) => { setEditingGame(g); setModalOpen(true); }} onDelete={handleDeleteGame} onViewDetail={setSelectedGame} isAuthenticated={isAuthenticated} />
             ))}
           </div>
         )}

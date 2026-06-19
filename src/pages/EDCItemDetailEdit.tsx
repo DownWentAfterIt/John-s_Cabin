@@ -3,14 +3,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { X, Image, Video, Upload, ArrowLeft, Save, Check } from "lucide-react";
 import { fileToBase64, isImageFile, isVideoFile } from "../utils/upload";
 import { RichTextEditor } from "../components/RichTextEditor";
-import { Game } from "../types";
-import { loadGames, saveGames } from "../utils/storage";
+import { EDCItem } from "../types";
 
-export default function DetailEdit() {
+const STORAGE_KEY = "johns-cabin-edc-items";
+
+const loadItemsFromStorage = (): EDCItem[] => {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+const saveItemsToStorage = (items: EDCItem[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+};
+
+export default function EDCItemDetailEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [game, setGame] = useState<Game | null>(null);
+  const [item, setItem] = useState<EDCItem | null>(null);
 
   const [review, setReview] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -23,13 +33,13 @@ export default function DetailEdit() {
   const hasChangesRef = useRef(false);
 
   useEffect(() => {
-    const games = loadGames();
-    const foundGame = games.find((g) => g.id === id);
-    if (foundGame) {
-      setGame(foundGame);
-      setReview(foundGame.review || "");
-      setImages(foundGame.images || []);
-      setVideos(foundGame.videos || []);
+    const items = loadItemsFromStorage();
+    const foundItem = items.find((i) => i.id === id);
+    if (foundItem) {
+      setItem(foundItem);
+      setReview(foundItem.review || "");
+      setImages(foundItem.images || []);
+      setVideos(foundItem.videos || []);
     }
     setLoading(false);
   }, [id]);
@@ -95,11 +105,11 @@ export default function DetailEdit() {
     if (!id || !hasChangesRef.current) return;
     
     setSaveStatus('saving');
-    const games = loadGames();
-    const updatedGames = games.map((g) =>
-      g.id === id ? { ...g, review, images, videos } : g
+    const items = loadItemsFromStorage();
+    const updatedItems = items.map((i) =>
+      i.id === id ? { ...i, review, images, videos } : i
     );
-    saveGames(updatedGames);
+    saveItemsToStorage(updatedItems);
     hasChangesRef.current = false;
     
     setTimeout(() => {
@@ -110,15 +120,13 @@ export default function DetailEdit() {
 
   // 监听数据变化，自动保存
   useEffect(() => {
-    if (!loading && game) {
+    if (!loading && item) {
       hasChangesRef.current = true;
       
-      // 清除之前的定时器
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
       
-      // 2秒后自动保存
       saveTimeoutRef.current = setTimeout(autoSave, 2000);
     }
     
@@ -127,17 +135,17 @@ export default function DetailEdit() {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [review, images, videos, loading, game]);
+  }, [review, images, videos, loading, item]);
 
   const handleSave = () => {
     if (!id) return;
 
-    const games = loadGames();
-    const updatedGames = games.map((g) =>
-      g.id === id ? { ...g, review, images, videos } : g
+    const items = loadItemsFromStorage();
+    const updatedItems = items.map((i) =>
+      i.id === id ? { ...i, review, images, videos } : i
     );
-    saveGames(updatedGames);
-    navigate("/");
+    saveItemsToStorage(updatedItems);
+    navigate("/edc");
   };
 
   if (loading) {
@@ -148,15 +156,15 @@ export default function DetailEdit() {
     );
   }
 
-  if (!game) {
+  if (!item) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <div className="text-slate-400 text-lg">Game not found</div>
+        <div className="text-slate-400 text-lg">EDC Item not found</div>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/edc")}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
         >
-          Back to Home
+          Back to EDC
         </button>
       </div>
     );
@@ -169,14 +177,14 @@ export default function DetailEdit() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/edc")}
                 className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-slate-400" />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-white">Edit Detail Content</h1>
-                <p className="text-sm text-slate-400">{game.name}</p>
+                <h1 className="text-xl font-bold text-white">Edit EDC Item Detail</h1>
+                <p className="text-sm text-slate-400">{item.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -201,7 +209,7 @@ export default function DetailEdit() {
                 </div>
               )}
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/edc")}
                 className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 text-white rounded-lg transition-colors"
               >
                 Cancel
@@ -224,7 +232,7 @@ export default function DetailEdit() {
           <RichTextEditor
             value={review}
             onChange={setReview}
-            placeholder="Write a detailed review about the game..."
+            placeholder="Write a detailed review about the EDC item..."
           />
         </div>
 

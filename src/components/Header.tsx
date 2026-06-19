@@ -14,8 +14,8 @@ export function Header({ onAddGame }: HeaderProps) {
               <Gamepad2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Game Collection</h1>
-              <p className="text-xs text-slate-400">Track your completed games</p>
+              <h1 className="text-xl font-bold text-white">John's Cabin</h1>
+              <p className="text-xs text-slate-400">Track my Gaming Life</p>
             </div>
           </div>
           <button onClick={onAddGame} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity">
