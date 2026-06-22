@@ -21,117 +21,21 @@ const EDC_ITEMS_KEY = "johns-cabin-edc-items";
 const EDC_SETUPS_KEY = "johns-cabin-edc-setups";
 const DEVICES_STORAGE_KEY = "johns-cabin-devices";
 
-// 默认 EDC 物品
-const defaultEDCItems: EDCItem[] = [
-  {
-    id: 'e1',
-    name: 'Leatherman Wave+',
-    category: 'Tool',
-    brand: 'Leatherman',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Leatherman%20Wave%20multi-tool%20stainless%20steel%20pliers%20black&image_size=square',
-    notes: '多功能工具钳，日常修理必备',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'e2',
-    name: 'Fisher Space Pen',
-    category: 'Daily',
-    brand: 'Fisher',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Fisher%20Space%20Pen%20bullet%20chrome%20pen%20minimalist&image_size=square',
-    notes: '太空笔，任何角度都能书写',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'e3',
-    name: 'Peak Design Everyday Backpack 20L',
-    category: 'Bag',
-    brand: 'Peak Design',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Peak%20Design%20Everyday%20Backpack%20black%20camera%20bag%20sleek%20modern&image_size=landscape_16_9',
-    notes: '摄影包首选，收纳设计一流',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'e4',
-    name: 'iPhone 15 Pro',
-    category: 'Electronics',
-    brand: 'Apple',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=iPhone%2015%20Pro%20titanium%20blue%20smartphone%20sleek%20premium&image_size=square',
-    notes: '主力手机，影像系统强大',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'e5',
-    name: 'Aesop 泰西伊森',
-    category: 'Perfume',
-    brand: 'Aesop',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Aesop%20Tasmanian%20perfume%20bottle%20brown%20glass%20minimalist%20elegant&image_size=square',
-    notes: '木质调香水，低调有质感',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'e6',
-    name: 'AirPods Pro 2',
-    category: 'Electronics',
-    brand: 'Apple',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Apple%20AirPods%20Pro%202%20white%20wireless%20earbuds%20case%20minimalist&image_size=square',
-    notes: '通勤必备，降噪效果出色',
-    review: '',
-    images: [],
-    videos: []
-  }
-];
-
-// 默认 EDC 方案
-const defaultEDCSetups: EDCSetup[] = [
-  {
-    id: 's1',
-    name: '日常通勤',
-    description: '工作日通勤随身携带的基本装备',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=EDC%20everyday%20carry%20flat%20lay%20minimalist%20desk%20setup%20modern&image_size=landscape_16_9',
-    itemIds: ['e2', 'e4', 'e6'],
-    notes: '轻便简洁，满足日常需求',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 's2',
-    name: '周末出行',
-    description: '周末短途旅行的装备组合',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=travel%20backpack%20essentials%20outdoor%20adventure%20gear%20flat%20lay&image_size=landscape_16_9',
-    itemIds: ['e1', 'e2', 'e3', 'e4', 'e5', 'e6'],
-    notes: '完整装备，应对各种场景',
-    review: '',
-    images: [],
-    videos: []
-  }
-];
+const defaultEDCItems: EDCItem[] = [];
+const defaultEDCSetups: EDCSetup[] = [];
 
 function loadItemsFromStorage(): EDCItem[] {
   try {
     const data = localStorage.getItem(EDC_ITEMS_KEY);
     if (data) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
-    // 如果没有数据，保存默认数据
-    saveItemsToStorage(defaultEDCItems);
     return defaultEDCItems;
   } catch (e) {
     console.error("加载 EDC 物品失败:", e);
-    saveItemsToStorage(defaultEDCItems);
     return defaultEDCItems;
   }
 }
@@ -149,16 +53,13 @@ function loadSetupsFromStorage(): EDCSetup[] {
     const data = localStorage.getItem(EDC_SETUPS_KEY);
     if (data) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
-    // 如果没有数据，保存默认数据
-    saveSetupsToStorage(defaultEDCSetups);
     return defaultEDCSetups;
   } catch (e) {
     console.error("加载 EDC 方案失败:", e);
-    saveSetupsToStorage(defaultEDCSetups);
     return defaultEDCSetups;
   }
 }

@@ -66,112 +66,14 @@ function getSubPlatformLabel(subPlatform: SubPlatform | "All"): string {
 
 const STORAGE_KEY = "game-collection-data";
 
-const defaultGames: Game[] = [
-  {
-    id: "1",
-    name: "The Legend of Zelda: Tears of the Kingdom",
-    platform: "Nintendo",
-    subPlatform: "Switch",
-    rating: 5,
-    completedDate: "2024-06-15",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=The%20Legend%20of%20Zelda%20Tears%20of%20the%20Kingdom%20game%20cover%20art%20epic%20fantasy%20adventure&image_size=landscape_16_9",
-    notes: "Amazing open world experience!",
-    review: "The Legend of Zelda: Tears of the Kingdom is a masterpiece of game design. The open world is vast and filled with countless secrets to discover. The Ultrahand ability adds a whole new dimension to puzzle solving, allowing you to create anything your imagination can conjure. The story is heartfelt and engaging, with memorable characters and epic moments. This is easily one of the best games ever made.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Zelda%20Tears%20of%20Kingdom%20gameplay%20flying%20on%20zonai%20device%20epic%20sky%20islands&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Zelda%20Tears%20of%20Kingdom%20underground%20caves%20mysterious%20dark%20atmosphere&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Zelda%20Tears%20of%20Kingdom%20Link%20using%20Ultrahand%20building%20vehicle&image_size=landscape_16_9"
-    ],
-    videos: []
-  },
-  {
-    id: "2",
-    name: "Baldurs Gate 3",
-    platform: "PC",
-    subPlatform: "Steam",
-    rating: 5,
-    completedDate: "2024-03-20",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Baldurs%20Gate%203%20game%20cover%20art%20fantasy%20RPG%20dark%20medieval&image_size=landscape_16_9",
-    notes: "One of the best RPGs ever made.",
-    review: "Baldur's Gate 3 sets a new standard for RPGs. The writing is exceptional, with deep characters and branching storylines that make every playthrough unique. The turn-based combat is strategic and satisfying, with a vast array of spells and abilities to master. The game respects your choices and makes you feel like every decision matters. A must-play for any RPG fan.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Baldurs%20Gate%203%20party%20adventure%20fantasy%20medieval%20forest&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Baldurs%20Gate%203%20combat%20scene%20spells%20magic%20dark%20dungeon&image_size=landscape_16_9"
-    ],
-    videos: []
-  },
-  {
-    id: "3",
-    name: "God of War Ragnarok",
-    platform: "PlayStation",
-    subPlatform: "PS5",
-    rating: 5,
-    completedDate: "2023-11-30",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=God%20of%20War%20Ragnarok%20game%20cover%20art%20epic%20norse%20mythology%20battle&image_size=landscape_16_9",
-    notes: "Masterful storytelling.",
-    review: "God of War Ragnarok is a triumph of narrative-driven game design. The relationship between Kratos and Atreus is at the heart of the story, and their journey through Norse mythology is both epic and deeply personal. The combat is visceral and satisfying, with new weapons and abilities that keep the gameplay fresh. The game is visually stunning, with breathtaking environments and incredible attention to detail.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=God%20of%20War%20Ragnarok%20Kratos%20Atreus%20norse%20landscape%20epic%20mountains&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=God%20of%20War%20Ragnarok%20battle%20giants%20epic%20action%20fire&image_size=landscape_16_9"
-    ],
-    videos: []
-  },
-  {
-    id: "4",
-    name: "Elden Ring",
-    platform: "PC",
-    subPlatform: "Steam",
-    rating: 5,
-    completedDate: "2023-04-15",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Elden%20Ring%20game%20cover%20art%20dark%20fantasy%20mysterious%20epic&image_size=landscape_16_9",
-    notes: "Challenging but rewarding.",
-    review: "Elden Ring is FromSoftware's magnum opus. The open world is a marvel of design, with hidden dungeons, secret paths, and epic bosses around every corner. The combat is punishing but fair, and mastering the game's mechanics is incredibly satisfying. The game's lore is deep and mysterious, inviting you to piece together the story from cryptic clues and environmental storytelling. A landmark achievement in gaming.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Elden%20Ring%20open%20world%20castle%20golden%20light%20fantasy%20landscape&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Elden%20Ring%20epic%20boss%20battle%20dark%20knight%20fire%20magic&image_size=landscape_16_9"
-    ],
-    videos: []
-  },
-  {
-    id: "5",
-    name: "Halo Infinite",
-    platform: "Xbox",
-    subPlatform: "Xbox Series",
-    rating: 4,
-    completedDate: "2023-02-10",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Halo%20Infinite%20game%20cover%20art%20sci-fi%20shooter%20Master%20Chief&image_size=landscape_16_9",
-    notes: "Great multiplayer experience.",
-    review: "Halo Infinite marks a return to form for the franchise. The campaign is a love letter to classic Halo, with open world sections that feel fresh while maintaining the series' signature gameplay. Master Chief is back in top form, and the story sets up exciting possibilities for the future. The multiplayer is fast, fun, and addictive, with a progression system that rewards skill and dedication.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Halo%20Infinite%20Master%20Chief%20sci-fi%20armor%20blue%20energy%20sword&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Halo%20Infinite%20multiplayer%20battle%20spartans%20vehicles%20explosions&image_size=landscape_16_9"
-    ],
-    videos: []
-  },
-  {
-    id: "6",
-    name: "Genshin Impact",
-    platform: "Mobile",
-    subPlatform: "iOS",
-    rating: 4,
-    completedDate: "2024-01-05",
-    coverUrl: "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Genshin%20Impact%20game%20cover%20art%20anime%20style%20fantasy%20world&image_size=landscape_16_9",
-    notes: "Addictive gacha game.",
-    review: "Genshin Impact is a surprisingly deep and polished open world RPG for mobile. The world of Teyvat is beautiful and expansive, with diverse regions to explore and countless secrets to find. The combat system is fast and flashy, with elemental reactions adding strategic depth. While the gacha system can be frustrating, the free-to-play experience is generous enough to enjoy the game without spending money.",
-    images: [
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Genshin%20Impact%20anime%20characters%20beautiful%20landscape%20fantasy%20world&image_size=landscape_16_9",
-      "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Genshin%20Impact%20combat%20magic%20elemental%20attacks%20anime%20style&image_size=landscape_16_9"
-    ],
-    videos: []
-  }
-];
+const defaultGames: Game[] = [];
 
 function loadGamesFromStorage(): Game[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed.map(g => {
           let platform = g.platform as string;
           let subPlatform = g.subPlatform as SubPlatform;
