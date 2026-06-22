@@ -31,111 +31,23 @@ const deviceCategoryLabels: Record<DeviceCategory, string> = {
 
 const STORAGE_KEY = "johns-cabin-devices";
 
-const defaultDevices: Device[] = [
-  {
-    id: 'd1',
-    name: 'ROG 幻16 Air',
-    category: 'Laptop',
-    brand: 'ASUS',
-    model: 'GU605',
-    price: 14999,
-    purchaseDate: '2024-03-15',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ASUS%20ROG%20Zephyrus%20G16%20gaming%20laptop%20sleek%20black%20RGB%20keyboard&image_size=landscape_16_9',
-    notes: '轻薄游戏本，性能与便携的完美平衡',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'd2',
-    name: 'LG 27GP950-B',
-    category: 'Monitor',
-    brand: 'LG',
-    model: '27GP950-B',
-    price: 4999,
-    purchaseDate: '2024-01-20',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=LG%20UltraGear%2027%20inch%20gaming%20monitor%204K%20HDR%20sleek%20stand&image_size=landscape_16_9',
-    notes: '4K 144Hz，色彩表现出色',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'd3',
-    name: 'Logitech G Pro X Superlight 2',
-    category: 'Mouse',
-    brand: 'Logitech',
-    model: 'G Pro X Superlight 2',
-    price: 999,
-    purchaseDate: '2024-05-10',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Logitech%20G%20Pro%20X%20Superlight%20white%20wireless%20gaming%20mouse%20minimalist&image_size=square',
-    notes: '60g轻量化，续航强劲',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'd4',
-    name: 'Keychron Q1 Pro',
-    category: 'Keyboard',
-    brand: 'Keychron',
-    model: 'Q1 Pro',
-    price: 1299,
-    purchaseDate: '2024-02-28',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Keychron%20Q1%20Pro%20mechanical%20keyboard%20wireless%20aluminum%20frame%20RGB&image_size=landscape_16_9',
-    notes: 'QMK/VIA支持，客制化首选',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'd5',
-    name: 'Sony WH-1000XM5',
-    category: 'Daily Headset',
-    brand: 'Sony',
-    model: 'WH-1000XM5',
-    price: 2499,
-    purchaseDate: '2024-04-05',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Sony%20WH-1000XM5%20wireless%20noise%20canceling%20headphones%20black%20premium&image_size=square',
-    notes: '顶级降噪，通勤必备',
-    review: '',
-    images: [],
-    videos: []
-  },
-  {
-    id: 'd6',
-    name: 'Steam Deck OLED',
-    category: 'Handheld',
-    brand: 'Valve',
-    model: 'Steam Deck OLED 512GB',
-    price: 4299,
-    purchaseDate: '2024-06-01',
-    imageUrl: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Steam%20Deck%20OLED%20handheld%20gaming%20console%20black%20sleek%20design&image_size=landscape_16_9',
-    notes: '掌机天花板，随时随地玩游戏',
-    review: '',
-    images: [],
-    videos: []
-  }
-];
+const defaultDevices: Device[] = [];
 
 function loadDevicesFromStorage(): Device[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed.map(d => ({
           ...d,
           images: d.images || []
         }));
       }
     }
-    // 如果没有数据，保存默认数据
-    saveDevicesToStorage(defaultDevices);
     return defaultDevices;
   } catch (e) {
     console.error("Failed to load devices:", e);
-    saveDevicesToStorage(defaultDevices);
     return defaultDevices;
   }
 }
